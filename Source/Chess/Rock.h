@@ -15,6 +15,8 @@ class CHESS_API ARock : public AChessPiece
 	GENERATED_BODY()
 	
 public:
+	ARock();
+
 	bool CheckForValidity(FVector2D InVector) ;
 
 	virtual void Move(FVector Location, class AChessBoard* InChessBoard) override;

@@ -2,6 +2,15 @@
 
 
 #include "ChessPawn.h"
+#include "UObject/ConstructorHelpers.h"
+
+AChessPawn::AChessPawn()
+{
+	ConstructorHelpers::FObjectFinder<UStaticMesh> FoundMesh(TEXT("StaticMesh'/Game/ChessMesh/Pawn.Pawn'"));
+	if (FoundMesh.Succeeded()) {
+		ChessMesh->SetStaticMesh(FoundMesh.Object);
+	}
+}
 
 bool AChessPawn::CheckForValidity(FVector2D InVector)
 {
@@ -24,9 +33,11 @@ bool AChessPawn::CheckForValidity(FVector2D InVector)
 	else
 	{
 		PossibleMoves.Add(InVector);
-		return true;
+		return false;
+		
 	}
 	return false;
+
 }
 bool AChessPawn::CheckForValidityOtherSide(FVector2D InVector)
 {
@@ -67,9 +78,13 @@ void AChessPawn::Move(FVector Location, class AChessBoard* InChessBoard)
 				{
 					TempNextXIndex--;
 					FVector2D NewVector = FVector2D(TempNextXIndex * 400, TempNextYIndex * 400);
-					if (CheckForValidity(NewVector))
+					if (CheckForValidity(NewVector)==true)
 					{
 						break;
+					}
+					else
+					{
+						continue;
 					}
 				}
 
@@ -113,9 +128,13 @@ void AChessPawn::Move(FVector Location, class AChessBoard* InChessBoard)
 				{
 					TempNextXIndex++;
 					FVector2D NewVector = FVector2D(TempNextXIndex * 400, TempNextYIndex * 400);
-					if (CheckForValidity(NewVector))
+					if (CheckForValidity(NewVector)==true)
 					{
 						break;
+					}
+					else
+					{
+						continue;
 					}
 				}
 

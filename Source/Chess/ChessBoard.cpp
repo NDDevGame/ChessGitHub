@@ -15,6 +15,8 @@ AChessBoard::AChessBoard()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	StartFigures.Add(1);
+	//....
 
 }
 
@@ -22,17 +24,23 @@ AChessBoard::AChessBoard()
 void AChessBoard::BeginPlay()
 {
 	Super::BeginPlay();
+	ChessPieces.Empty();
 	for (int i = 0; i <= 63; i++)
 	{
+		// =_= e empty trc vong for
+		// Chu sao lai empty trong for, the nay khi v
+	
 		FVector2D SpawnLocation2D;
 		FVector SpawnLocation;
 		FVector	OutLocation;
 		PositionLevelUp(i,SpawnLocation,OutLocation,SpawnLocation2D);
-		SpawnLocation2D.X += GetActorLocation().X;
-		SpawnLocation2D.Y += GetActorLocation().Y;
+		SpawnLocation2D.X = SpawnLocation2D.X + GetActorLocation().X;
+		SpawnLocation2D.Y = SpawnLocation2D.Y + GetActorLocation().Y;
 		SpawnLocation = FVector(SpawnLocation2D.X, SpawnLocation2D.Y, 0);
 		TSubclassOf<AChessPiece> SpawnClass;
-		switch (StartFigures[i]) {
+		if (i >= 0 && i <= StartFigures.Num())
+		{	switch (StartFigures[i])
+			{
 		case 1:
 			SpawnClass = AChessPawn::StaticClass();
 			break;
@@ -51,33 +59,45 @@ void AChessBoard::BeginPlay()
 		case 6 :
 			SpawnClass = AKing::StaticClass();
 			break;
+			}
 		}
-		FActorSpawnParameters SpawnParams;
-		AChessPiece* SpawnedPiece = Cast<AChessPiece>(GetWorld()->SpawnActor<AChessPiece>(SpawnClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams));
-		if (SpawnedPiece) {
-			//***************************//
-			SpawnedPiece->ConstructPiecesData(i > 20);
+		if (SpawnClass) {
+			FActorSpawnParameters SpawnParams;
+			AChessPiece* SpawnedPiece = Cast<AChessPiece>(GetWorld()->SpawnActor<AChessPiece>(SpawnClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams));
+			if (SpawnedPiece) {
+				ChessPieces.Add(SpawnedPiece);
+				SpawnedPiece->ConstructPiecesData(i > 20);
+			}
 		}
 	}
-	
+	for (AChessPiece* ChessPiece : ChessPieces) {
+		if (ChessPiece != nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Piece %s"), *ChessPiece->GetName());
+		}
+	}
 }
 
 void AChessBoard::ShowWayMove(TArray<FVector2D> InMoves)
 {
 	// Tim kiem material o day
 	// Dung cach nay cho nhanh, cach kia chi dung dc o construction script thoi
+
 	UMaterialInterface* OnClickedMaterial = LoadObject<UMaterialInterface>(this, TEXT("Material'/Game/Material/M_OnClicked.M_OnClicked'"));
 	for (int i = 0; i < InMoves.Num() ;i++)
-	{
-		if (InMoves[i] == ChessBoard[i])
-		{
-			int32 a = i;
-			// Set Material chi ap dung duoc tren skeletal mesh hoac la static mesh
-			// Gio em can co material de set
-			// Co the lam cach nhu a chi hui chieu
-			// Roi do e
-
-			ChessBoard_Mesh[a]->SetMaterial(0, OnClickedMaterial);
+	{	
+		if (ChessBoard.Contains(InMoves[i])) {
+			int32 WayMove;
+			bool bFound = ChessBoard.Find(InMoves[i], WayMove);
+			if (bFound)
+			{
+				
+					if (ChessBoard_Mesh.IsValidIndex(WayMove) && ChessBoard_Mesh[WayMove])
+					{
+					UE_LOG(LogTemp, Warning, TEXT("SetWayMove"));
+					ChessBoard_Mesh[WayMove]->SetMaterial(0, OnClickedMaterial);
+					}		
+			}
 		}
 	}
 }
@@ -86,7 +106,9 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 {
 	int32 OutIndex;
 	Position2Index(InLocation, OutIndex);
-	UMaterialInterface* OnClickedMaterial = LoadObject<UMaterialInterface>(this, TEXT("Material'/Game/Material/M_OnClicked.M_OnClicked'"));
+	UE_LOG(LogTemp, Warning, TEXT("this is an int OutIndex %d"), OutIndex);
+
+	
 	if (LastClick == -1)
 	{
 		LastClick = OutIndex;
@@ -96,9 +118,13 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 
 			int32 FoundIndex = -1;
 			
-				bool bFound = ChessPieces.Find(ClickedPiece, FoundIndex);
+			bool bFound = ChessPieces.Find(ClickedPiece, FoundIndex);
+			UE_LOG(LogTemp, Warning, TEXT("this is a Foundindex %d"), FoundIndex);
+			
 			if (bFound) {
 				Index = FoundIndex;
+		
+				UE_LOG(LogTemp, Warning, TEXT("this is an index %d"), Index);
 			}
 
 
@@ -106,9 +132,10 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 	}
 	else
 	{
-		if (ChessBoard_Mesh[OutIndex]->GetMaterial(0) ==  OnClickedMaterial)
+		UMaterialInterface* OnClickedMaterial = LoadObject<UMaterialInterface>(this, TEXT("Material'/Game/Material/M_OnClicked.M_OnClicked'"));
+		if (ChessBoard_Mesh.IsValidIndex(OutIndex) && ChessBoard_Mesh[OutIndex] && ChessBoard_Mesh[OutIndex]->GetMaterial(0) ==  OnClickedMaterial)
 		{
-			for (int i = 0; i <= ChessBoard_Mesh.Num(); i++)
+			for (int i = 0; i < ChessBoard_Mesh.Num(); i++)
 			{
 				ChessBoard_Mesh[i]->SetMaterial(0,ChessBoard_Material[i]);
 			}
@@ -124,7 +151,12 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 			{
 				HitResult.GetActor()->Destroy();
 			}
-			ChessPieces[Index]->SetActorLocation(StartLocation);
+			if (ChessPieces.IsValidIndex(Index) && ChessPieces[Index])
+			{
+				UE_LOG(LogTemp, Warning, TEXT("this is an int %d"), Index);
+				ChessPieces[Index]->SetActorLocation(StartLocation);
+			}
+
 			LastClick = -1;
 			AChessController* MyController = Cast<AChessController>(GetWorld()->GetFirstPlayerController());
 			if (MyController) {
@@ -139,9 +171,10 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 		}
 		else
 		{
-			for (int i = 0; i <= ChessBoard_Mesh.Num(); i++)
+			for (int i = 0; i < ChessBoard_Mesh.Num(); i++)
 			{
-				ChessBoard_Mesh[i]->SetMaterial(0,ChessBoard_Material[i]);
+				if (ChessBoard_Mesh[i] && ChessBoard_Material.IsValidIndex(i) && ChessBoard_Material[i])
+					ChessBoard_Mesh[i]->SetMaterial(0,ChessBoard_Material[i]);
 			}
 			LastClick = -1;
 		}
@@ -158,7 +191,7 @@ void AChessBoard::PositionLevelUp(int32 A, FVector& OutLocation200, FVector& Out
 {
 	Index2Position(A, OutLocation200, OutLocation2D);
 	OutLocation2D = FVector2D(OutLocation2D.X + 200, OutLocation2D.Y + 200);
-	OutLocation200 = FVector(OutLocation2D.X + 200, OutLocation2D.Y + 200,0);
+	OutLocation200 = FVector(OutLocation200.X + 200, OutLocation200.Y + 200,0);
 }
 
 void AChessBoard::Position2Index(FVector InLocation, int32& OutIndex)

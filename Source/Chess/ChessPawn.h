@@ -16,6 +16,8 @@ class CHESS_API AChessPawn : public AChessPiece
 	GENERATED_BODY()
 	
 public:
+	AChessPawn();
+
 	bool bFirstMove = true;
 	 bool CheckForValidity(FVector2D InVector);
 

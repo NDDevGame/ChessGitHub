@@ -2,19 +2,30 @@
 
 
 #include "King.h"
+#include "UObject/ConstructorHelpers.h"
+
+AKing::AKing()
+{
+	ConstructorHelpers::FObjectFinder<UStaticMesh> FoundMesh(TEXT("StaticMesh'/Game/ChessMesh/King.King'"));
+	if (FoundMesh.Succeeded()) {
+		ChessMesh->SetStaticMesh(FoundMesh.Object);
+	}
+}
 
 bool AKing::CheckForValidity(FVector2D InVector)
 {
 	FHitResult HitResult;
 	FVector StartLocation = GetActorLocation();
 	StartLocation.Z += 50.f;
-	FVector EndLocation = FVector(InVector.X, InVector.Y, 50);
+	FVector EndLocation = FVector(InVector.X + 200, InVector.Y + 200, 50);
 	GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
-
+	//UE_LOG(LogTemp, Warning, TEXT("bool %s"), HitResult.bBlockingHit ? TEXT("true") : TEXT("false"));
+	//DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, true);
 	if (HitResult.bBlockingHit)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("Bishop hit %s"), *HitResult.GetActor()->GetName());
 		AChessPiece* HitChessPiece = Cast<AChessPiece>(HitResult.GetActor());
-		if (HitChessPiece && HitChessPiece->bSide != bSide)
+		if (HitChessPiece->bSide != bSide)
 		{
 			PossibleMoves.Add(InVector);
 			return true;
@@ -23,13 +34,16 @@ bool AKing::CheckForValidity(FVector2D InVector)
 	else
 	{
 		PossibleMoves.Add(InVector);
-		return true;
+		return false;
 	}
 	return false;
 }
 
 void AKing::Move(FVector Location, class AChessBoard* InChessBoard)
 {
+
+	PossibleMoves.Empty();
+	SetPositionXYValue(Location);
 	TempNextXIndex = FMath::FloorToInt(XValue);
 	TempNextYIndex = FMath::FloorToInt(YValue);
 	if (TempNextXIndex <= 7 && TempNextXIndex >= 0)

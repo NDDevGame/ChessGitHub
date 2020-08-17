@@ -16,6 +16,8 @@ class CHESS_API AQueen : public AChessPiece
 	GENERATED_BODY()
 	
 public:
+	AQueen();
+
 	bool CheckForValidity(FVector2D InVector) ;
 
 	virtual void Move(FVector Location, class AChessBoard* InChessBoard) override;

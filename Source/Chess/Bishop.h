@@ -16,8 +16,9 @@ class CHESS_API ABishop : public AChessPiece
 {
 	GENERATED_BODY()
 public:
+	ABishop();
 
-	 bool CheckForValidity(FVector2D InVector) ;
+	bool CheckForValidity(FVector2D InVector) ;
 
 	virtual void Move(FVector Location, class AChessBoard* InChessBoard) override;
 };

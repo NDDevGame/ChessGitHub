@@ -12,7 +12,7 @@ AChessPiece::AChessPiece()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ChessMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	ChessMesh->SetupAttachment(RootComponent);
+	RootComponent = ChessMesh;
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	Box->SetupAttachment(RootComponent);

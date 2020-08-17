@@ -16,7 +16,9 @@ class CHESS_API AKnight : public AChessPiece
 	GENERATED_BODY()
 
 public:
-	 bool CheckForValidity(FVector2D InVector);
+	AKnight();
+
+	bool CheckForValidity(FVector2D InVector);
 
 	virtual void Move(FVector Location, class AChessBoard* InChessBoard) override;
 };

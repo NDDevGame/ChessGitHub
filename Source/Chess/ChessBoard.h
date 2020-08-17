@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Materials/Material.h"
 #include "GameFramework/Actor.h"
 #include "ChessBoard.generated.h"
+//#include "Containers/Array.h"
 
 
 UCLASS()
@@ -30,18 +32,24 @@ public:
 
 	void Position2Index(FVector InLocation, int32& OutIndex);
 
-	TArray<int32> StartFigures;
+	UPROPERTY(EditDefaultsOnly)
+		TArray<int32> StartFigures = { 2,3,4,5,6,4,3,2,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,3,4,5,6,4,3,2 };
 
 	int32 LastClick =-1;
 
+	UPROPERTY(BlueprintReadWrite)
 	TArray<UStaticMeshComponent*> ChessBoard_Mesh;
 
+	UPROPERTY(BlueprintReadWrite)
 	TArray<UMaterialInterface*> ChessBoard_Material;
 
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FVector2D> ChessBoard;
 
+	UPROPERTY(BlueprintReadWrite)
 	float XValue;
 
+	UPROPERTY(BlueprintReadWrite)
 	float YValue;
 
 	TArray<class AChessPiece*> ChessPieces;
