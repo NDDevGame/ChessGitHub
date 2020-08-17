@@ -18,7 +18,7 @@ bool AChessPawn::CheckForValidity(FVector2D InVector)
 	FHitResult HitResult;
 	FVector StartLocation = GetActorLocation();
 	StartLocation.Z += 50.f;
-	FVector EndLocation = FVector(InVector.X, InVector.Y, 50);
+	FVector EndLocation = FVector(InVector.X+200, InVector.Y+200, 50);
 	GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
 
 	if (HitResult.bBlockingHit)
@@ -44,7 +44,7 @@ bool AChessPawn::CheckForValidityOtherSide(FVector2D InVector)
 	FHitResult HitResult;
 	FVector StartLocation = GetActorLocation();
 	StartLocation.Z += 50.f;
-	FVector EndLocation = FVector(InVector.X, InVector.Y, 50);
+	FVector EndLocation = FVector(InVector.X+200, InVector.Y+200, 50);
 	GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
 
 	if (HitResult.bBlockingHit)

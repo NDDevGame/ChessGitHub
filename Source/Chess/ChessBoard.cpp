@@ -10,6 +10,7 @@
 #include "King.h"
 #include "ChessController.h"
 
+
 // Sets default values
 AChessBoard::AChessBoard()
 {
@@ -70,12 +71,6 @@ void AChessBoard::BeginPlay()
 			}
 		}
 	}
-	for (AChessPiece* ChessPiece : ChessPieces) {
-		if (ChessPiece != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Piece %s"), *ChessPiece->GetName());
-		}
-	}
 }
 
 void AChessBoard::ShowWayMove(TArray<FVector2D> InMoves)
@@ -94,7 +89,7 @@ void AChessBoard::ShowWayMove(TArray<FVector2D> InMoves)
 				
 					if (ChessBoard_Mesh.IsValidIndex(WayMove) && ChessBoard_Mesh[WayMove])
 					{
-					UE_LOG(LogTemp, Warning, TEXT("SetWayMove"));
+					
 					ChessBoard_Mesh[WayMove]->SetMaterial(0, OnClickedMaterial);
 					}		
 			}
@@ -104,9 +99,10 @@ void AChessBoard::ShowWayMove(TArray<FVector2D> InMoves)
 
 void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClickedActor)
 {
+	FVector MeshLocation;
 	int32 OutIndex;
 	Position2Index(InLocation, OutIndex);
-	UE_LOG(LogTemp, Warning, TEXT("this is an int OutIndex %d"), OutIndex);
+
 
 	
 	if (LastClick == -1)
@@ -119,16 +115,17 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 			int32 FoundIndex = -1;
 			
 			bool bFound = ChessPieces.Find(ClickedPiece, FoundIndex);
-			UE_LOG(LogTemp, Warning, TEXT("this is a Foundindex %d"), FoundIndex);
+		
 			
 			if (bFound) {
 				Index = FoundIndex;
 		
-				UE_LOG(LogTemp, Warning, TEXT("this is an index %d"), Index);
+				
 			}
 
 
 		}
+		MeshLocation = InLocation;
 	}
 	else
 	{
@@ -139,21 +136,30 @@ void AChessBoard::OnClickedChessBoard(FVector InLocation, class AActor* InClicke
 			{
 				ChessBoard_Mesh[i]->SetMaterial(0,ChessBoard_Material[i]);
 			}
-			FHitResult HitResult;
 			FVector StartLocation;
 			FVector B;
 			FVector2D A;
+			
 			PositionLevelUp(OutIndex, StartLocation, B, A);
-
-			FVector EndLocation = FVector(StartLocation.X, StartLocation.Y, 50);
-			GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
-			if (HitResult.bBlockingHit)
+			if (MeshLocation != StartLocation)
 			{
-				HitResult.GetActor()->Destroy();
+
+
+				FHitResult HitResult;
+
+
+				FVector EndLocation = FVector(StartLocation.X, StartLocation.Y, 1000);
+				GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
+				
+
+				if (HitResult.bBlockingHit && HitResult.GetActor())
+				{
+					HitResult.GetActor()->Destroy();
+				}
 			}
 			if (ChessPieces.IsValidIndex(Index) && ChessPieces[Index])
 			{
-				UE_LOG(LogTemp, Warning, TEXT("this is an int %d"), Index);
+				
 				ChessPieces[Index]->SetActorLocation(StartLocation);
 			}
 

@@ -19,11 +19,10 @@ bool AQueen::CheckForValidity(FVector2D InVector)
 	StartLocation.Z += 50.f;
 	FVector EndLocation = FVector(InVector.X + 200, InVector.Y + 200, 50);
 	GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
-	//UE_LOG(LogTemp, Warning, TEXT("bool %s"), HitResult.bBlockingHit ? TEXT("true") : TEXT("false"));
-	//DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, true);
+
 	if (HitResult.bBlockingHit)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Bishop hit %s"), *HitResult.GetActor()->GetName());
+	
 		AChessPiece* HitChessPiece = Cast<AChessPiece>(HitResult.GetActor());
 		if (HitChessPiece->bSide != bSide)
 		{
